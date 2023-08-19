@@ -5,14 +5,21 @@ using UnityEngine.UI;
 
 public class Inventory : MonoBehaviour
 {
+    [Header("Hit")]
     RaycastHit hit;
-    [SerializeField] GameObject Empty_GAMEOBJECT;
+    [Header("Inventory Stuff")]
+    [SerializeField] public GameObject Empty_GAMEOBJECT;
     [SerializeField] GameObject camParent;
-    [SerializeField] GameObject[] slot_images;
+    [SerializeField] public GameObject[] slot_images;
     [SerializeField] Transform item_position;
-    private int lastItem_index;
-    private Item current_item;
-    private Item[] items;
+    public int lastItem_index;
+    public Item current_item;
+    public Item[] items;
+    public static Inventory instance;
+    private void Awake()
+    {
+        instance = this;
+    }
     void Start()
     {
         items = new Item[9];
@@ -36,14 +43,30 @@ public class Inventory : MonoBehaviour
             {
                if (slot_images[current_item.id].GetComponent<Image>().enabled == false)
                {
-                  hit.transform.GetComponent<object_Item>().itemInfo.id = current_item.id;
-                  items[current_item.id] = hit.transform.GetComponent<object_Item>().itemInfo;
-                  items[current_item.id].Object = hit.transform.gameObject;
-                  slot_images[current_item.id].GetComponent<Image>().enabled = true;
-                  slot_images[current_item.id].GetComponent<Image>().sprite = hit.transform.GetComponent<object_Item>().itemInfo.sprite;
-                  hit.transform.parent = item_position;
-                  current_item = items[current_item.id];
-               }
+                  if (hit.transform.CompareTag("Item"))
+                    {
+                        if (hit.transform.GetComponent<Collider>() != null)
+                        {
+                            hit.transform.GetComponent<Collider>().enabled = false;
+                        }
+                       
+                        hit.transform.gameObject.layer = LayerMask.NameToLayer("Item");
+                      hit.transform.GetComponent<object_Item>().itemInfo.id = current_item.id;
+                      items[current_item.id] = hit.transform.GetComponent<object_Item>().itemInfo;
+                      items[current_item.id].Object = hit.transform.gameObject;
+                      slot_images[current_item.id].GetComponent<Image>().enabled = true;
+                      slot_images[current_item.id].GetComponent<Image>().sprite = hit.transform.GetComponent<object_Item>().itemInfo.sprite;
+                        hit.transform.parent = item_position;
+                        hit.transform.rotation = new Quaternion(0, 0, 90, 0);
+                        hit.transform.localPosition = Vector3.zero;
+                        current_item = items[current_item.id];
+                        if (current_item.name == "Key")
+                        {
+                            GameManagement.instance.otherVoice.clip = GameManagement.instance.key;
+                            GameManagement.instance.otherVoice.Play();
+                        }
+                    }
+                }
             }
         }
         if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -85,7 +108,6 @@ public class Inventory : MonoBehaviour
     }
     public void switchItem(int index)
     {
-        print("before:"+current_item.id);
         if (items[current_item.id].Object != null)
         {
             if (items[current_item.id].Object.GetComponent<Renderer>() != null)
@@ -94,27 +116,16 @@ public class Inventory : MonoBehaviour
 
                 items[current_item.id].Object.GetComponent<Renderer>().enabled = false;
             }
-            if (items[current_item.id].Object.GetComponent<Collider>() != null)
-            {
-                items[current_item.id].Object.GetComponent<Collider>().enabled = false;
-            }
         }
-
         if (current_item != null)
         {
             current_item = items[index];
         }
-        print("after:" + current_item.id);
-
         if (current_item.Object != null)
         {
             if (current_item.Object.GetComponent<Renderer>() != null)
             {
                 current_item.Object.GetComponent<Renderer>().enabled = true;
-            }
-            if (current_item.Object.GetComponent<Collider>() != null)
-            {
-                current_item.Object.GetComponent<Collider>().enabled = true;
             }
         }
     }

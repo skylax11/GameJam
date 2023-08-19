@@ -9,4 +9,6 @@ public class Item : ScriptableObject
     public int id;
     public Sprite sprite;
     public GameObject Object;
+    public string topicOfExpert;
+    public string Description;
 }

@@ -17,12 +17,15 @@ public class PlayerCamera : MonoBehaviour
         Instance = this;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        print(VoiceInfo.instance.sensX);
+        sensX = VoiceInfo.instance.sensX;
+        sensY = VoiceInfo.instance.sensY;
     }
     private void Awake()
     {
         Instance = this;
     }
-    // Update is called once per frame
+    
     void Update()
     {
         float mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * sensX;
